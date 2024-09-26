@@ -5,6 +5,8 @@ from datetime import datetime
 
 app = FastAPI()
 
+detected_faces = []  # Lista para armazenar as coordenadas dos rostos detectados
+
 @app.get("/")
 def root():
     return {"message": "Hello World"}
@@ -28,6 +30,9 @@ async def upload_image(file: UploadFile = File(...)):
     
     # Detectar rostos na imagem
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+    # Armazenar as coordenadas dos rostos detectados
+    detected_faces = [(x, y, w, h) for (x, y, w, h) in faces]
     
     # Desenhar retângulos ao redor dos rostos detectados
     for (x, y, w, h) in faces:
@@ -43,6 +48,11 @@ async def upload_image(file: UploadFile = File(...)):
     cv2.imwrite(filename, image)
     
     return {"message": f"Imagem recebida e salva como {filename}"}
+
+@app.get("/get_faces")
+def get_faces():
+    # Retornar as coordenadas dos rostos detectados - Ponderada 3
+    return {"faces": detected_faces}
 
 if __name__ == '__main__':
     import uvicorn
