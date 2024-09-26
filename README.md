@@ -39,6 +39,8 @@ Após construir a imagem, você pode rodar o container com o comando abaixo. Est
 docker run -p 8000:8000 -v $(pwd)/app/images:/app/images backend
 ```
 
+* pwd: Diretório local para salvar os arquivos vindos do Container Docker /app/images
+
 - **`-p 8000:8000`**: Mapeia a porta 8000 do container para a porta 8000 do host, onde o FastAPI estará rodando.
 - **`-v $(pwd)/app/images:/app/images`**: Mapeia o diretório local onde as imagens são salvas, garantindo que as imagens processadas fiquem acessíveis fora do container.
 
@@ -85,6 +87,33 @@ received_image-24092024143015.jpg
 ### Diretório de Salvamento
 
 As imagens processadas são salvas no diretório `/app/images`, que foi mapeado para o sistema de arquivos do host via Docker volume, permitindo acesso às imagens fora do container.
+
+Para complementar a documentação do seu backend que processa imagens enviadas pelo ESP32-CAM e as detecta para rostos, aqui está a adição sobre a nova rota `/get_faces` que foi criada para fornecer as coordenadas dos rostos detectados:
+
+## Rota `/get_faces` para Coordenadas de Detecção de Rosto
+
+### Finalidade
+
+A rota `/get_faces` foi adicionada ao backend para permitir que dispositivos ou serviços externos recuperem as coordenadas dos rostos detectados mais recentemente. Isso é útil para aplicações que precisam de feedback em tempo real sobre a localização dos rostos numa série de imagens capturadas.
+
+### Funcionamento
+
+Quando uma imagem é enviada ao endpoint `/upload` e processada, as coordenadas dos rostos detectados são armazenadas temporariamente numa lista no servidor. Essa lista é então acessível através do endpoint GET `/get_faces`.
+
+### Formato da Resposta
+
+A resposta deste endpoint é um objeto JSON que contém uma lista de coordenadas dos rostos detectados. Cada coordenada na lista é representada como uma tupla de quatro elementos `(x, y, w, h)`, onde `x` e `y` são as coordenadas do canto superior esquerdo do retângulo que envolve o rosto, `w` é a largura do retângulo, e `h` é a altura.
+
+#### Exemplo de resposta:
+
+```json
+{
+  "faces": [
+    [30, 50, 100, 150],
+    [120, 80, 90, 110]
+  ]
+}
+```
 
 ## Dependências
 
